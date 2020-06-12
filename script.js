@@ -122,9 +122,9 @@ function endGame() {
   var questionEL = document.createElement("h3");
   //add content
   questionEL.textContent =
-  "You scored " +
-  timeLeft +
-  " points! If you would like to save this score, please type your intials below and click submit.";
+    "You scored " +
+    timeLeft +
+    " points! If you would like to save this score, please type your intials below and click submit.";
   //append to existing element
   questionSection.append(questionEL);
   //Create input field so that the initials can be saved.
@@ -147,57 +147,88 @@ function endGame() {
   submitEl.setAttribute(
     "class",
     "btn btn-primary mybutton btn-block submit-button"
-    );
+  );
+  //append to existing element
+  questionSection.append(submitEl);
+}
+
+function renderHighScores() {
+  var highScores = JSON.parse(localStorage.getItem("highScores"));
+
+  for (var i = 0; i < highScores.length; i++) {
+    //create the element
+    var highScoresMessage = document.createElement("h3");
+    //add content
+    highScoresMessage.textContent =
+      highScores[i].initials + " scored " + highScores[i].score;
     //append to existing element
-    questionSection.append(submitEl);
+    questionSection.append(highScoresMessage);
   }
+  //Create a button to refresh the page back to the welcome screen.
+  //Create list item element so that the button can be appended.
+  restartMessageEl = document.createElement("h3");
+  //choiceEl = document.createElement("button"); THey say I can just create a button instead.
+  //add content
+  restartMessageEl.textContent =
+    "If you would like to try for a higher score. Click the button Restart Quiz!";
+  //append to existing element
+  questionSection.append(restartMessageEl);
+  //Create list item element so that the button can be appended.
+  restartEl = document.createElement("li");
+  //restartEl = document.createElement("button"); THey say I can just create a button instead.
+  //add content
+  restartEl.textContent = "Restart Quiz";
+  //add style
+  restartEl.setAttribute("type", "button");
+  restartEl.setAttribute(
+    "class",
+    "btn btn-primary mybutton btn-block restart-button"
+  );
+  //append to existing element
+  questionSection.append(restartEl);
+}
 
-  function renderHighScores(){
-    var highScores = JSON.parse(localStorage.getItem("highScores"));
-    
-    for (var i = 0; i < highScores.length; i++) {
-      //create the element
-      var highScoresMessage = document.createElement("h3");
-      //add content
-      highScoresMessage.textContent = highScores[i].initials + " scored " + highScores[i].score;
-      //append to existing element
-      questionSection.append(highScoresMessage);
+//EVENT LISTENERS
+//Within this section, I want you listen for a click from any the .mybutton.
+questionSection.addEventListener("click", function (event) {
+  event.preventDefault();
+  if (event.target.matches(".mybutton")) {
+    if (choiceEl.textContent !== testContent[questionIndex].answer) {
+      timeLeft = timeLeft - 10;
+      responseEl.textContent = "incorrect";
+    } else {
+      responseEl.textContent = "correct";
     }
+    var responseTime = setInterval(function () {
+      //Clear the HTML to start fresh
+      questionSection.innerHTML = "";
+      questionIndex++;
+      clearInterval(responseTime);
+      renderQuestion();
+    }, 1000);
   }
-  
-  //EVENT LISTENERS
-  //Within this section, I want you listen for a click from any the .mybutton.
-  questionSection.addEventListener("click", function (event) {
-    event.preventDefault();
-    if (event.target.matches(".mybutton")) {
-      if (choiceEl.textContent !== testContent[questionIndex].answer) {
-        timeLeft = timeLeft - 10;
-        responseEl.textContent = "incorrect";
-      } else {
-        responseEl.textContent = "correct";
-      }
-      var responseTime = setInterval(function () {
-        //Clear the HTML to start fresh
-        questionSection.innerHTML = "";
-        questionIndex++;
-        clearInterval(responseTime);
-        renderQuestion();
-      }, 1000);
-    }
-  });
+});
 
-  //Within this section, I want you to listen for a click from the .submit-button.
+//Within this section, I want you to listen for a click from the restart-button.
+questionSection.addEventListener("click", function (event) {
+  event.preventDefault();
+  if (event.target.matches(".restart-button")){
+  location.reload();
+  }
+});
+
+
+//Within this section, I want you to listen for a click from the .submit-button.
 questionSection.addEventListener("click", function (event) {
   event.preventDefault();
   if (event.target.matches(".submit-button")) {
     //Push timeLeft and initials into array. We use index 0 because it is the only input.
-    highScoresSaved.push({"initials":initialsEl[0].value, "score":timeLeft});
-    console.log(highScoresSaved)
-  //save timeLeft and initials in local storage
-  localStorage.setItem("highScores",JSON.stringify((highScoresSaved)));
-  console.log(highScoresSaved);
-  questionSection.innerHTML = "";
-  renderHighScores();
+    highScoresSaved.push({ initials: initialsEl[0].value, score: timeLeft });
+    console.log(highScoresSaved);
+    //save timeLeft and initials in local storage
+    localStorage.setItem("highScores", JSON.stringify(highScoresSaved));
+    console.log(highScoresSaved);
+    questionSection.innerHTML = "";
+    renderHighScores();
   }
 });
-
