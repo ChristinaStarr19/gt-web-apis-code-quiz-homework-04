@@ -1,0 +1,17 @@
+#welcome {
+ text-align: center;
+ width:30%;
+ margin: auto;
+}
+
+#timer {
+    text-align: right;
+}
+
+#question {
+    width:30%;
+    margin: auto;
+    text-align: center;
+    display: none;
+}
+
