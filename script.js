@@ -12,8 +12,9 @@ var questionIndex = 0;
 var timeInterval;
 var choiceEl;
 var responseEl;
-var initials;
+var initialsEl;
 var submitEl;
+var highScoresSaved = [];
 
 var testContent = [
   {
@@ -109,15 +110,6 @@ questionSection.addEventListener("click", function (event) {
     } else {
       responseEl.textContent = "correct";
     }
-    //give time for the message to show by adding a setInterval.
-
-    // if (choiceEl.textContent !== testContent[questionIndex].answer) {
-    //   timeLeft = timeLeft - 10;
-    //   responseEl.textContent = "incorrect";
-    // }
-    // else {
-    //   responseEl.textContent = "correct";
-    // }
     var responseTime = setInterval(function () {
       //Clear the HTML to start fresh
       questionSection.innerHTML = "";
@@ -127,13 +119,6 @@ questionSection.addEventListener("click", function (event) {
     }, 1000);
   }
 });
-//look at activity 18/19 for event delegation
-//when clicking on questionsection
-// check if element clicked is li
-// if textcontent === testContent[questionIndex].answer
-// else subtract time from timer
-// questionIndex++
-// call renderQuestion
 
 function timerStart() {
   timeInterval = setInterval(function () {
@@ -150,7 +135,7 @@ function endGame() {
   //This will stop the timer.
   clearInterval(timeInterval);
   //This will clear the section and prepare it for the endGame screen.
-  questionSection.innerHTML = "";
+  // questionSection.innerHTML = "";
   //Create h3 to display initials question.
   var questionEL = document.createElement("h3");
   //add content
@@ -161,10 +146,15 @@ function endGame() {
   //append to existing element
   questionSection.append(questionEL);
   //Create input field so that the initials can be saved.
-  var initialsEl = document.createElement("input");
+  newinitialsEl = document.createElement("input");
   //Content will be added later and saved to the local storage when submit button clicked.
+  //Add a name to this input.
+ newinitialsEl.textContent = "";
   //append to existing element
-  questionSection.append(initialsEl);
+  questionSection.append(newinitialsEl);
+  //storing a reference
+  initialsEl = document.getElementsByTagName("input");
+  console.log(initialsEl);
   //Create list item element so that the button can be appended.
   submitEl = document.createElement("li");
   //choiceEl = document.createElement("button"); THey say I can just create a button instead.
@@ -178,21 +168,43 @@ function endGame() {
   );
   //append to existing element
   questionSection.append(submitEl);
-
-  //prompt user for initials
-  //display score (timeleft)
 }
+
 //Within this section, I want you to listen for a click from the .submit-button.
 questionSection.addEventListener("click", function (event) {
   event.preventDefault();
   if (event.target.matches(".submit-button")) {
-    saveScores();
+    //Push timeLeft and initials into array. We use index 0 because it is the only input.
+    highScoresSaved.push({"initials":initialsEl[0].value, "score":timeLeft});
+    console.log(highScoresSaved)
+  //save timeLeft and initials in local storage
+  localStorage.setItem("highScores",JSON.stringify((highScoresSaved)));
+  console.log(highScoresSaved);
+  questionSection.innerHTML = "";
+  renderHighScores();
   }
 });
 
-function saveScores() {
-  //save initialsEl in local storage
-  //save timeLeft in local storage
-  //This will clear the section and prepare it for the endGame screen.
-  questionSection.innerHTML = "";
+
+function renderHighScores(){
+  var highScores = JSON.parse(localStorage.getItem("highScores"));
+  
+  for (var i = 0; i < highScores.length; i++) {
+    //create the element
+      var highScoresMessage = document.createElement("h3");
+      //add content
+      highScoresMessage.textContent = highScores[i].initials + " scored " + highScores[i].score;
+      //append to existing element
+      questionSection.append(highScoresMessage);
+
+  }
+ 
+
+ // intialsDisplay.textContent = initialsDisplay;
+  //scoreDisplay.textContent = scoreDisplay;
+
+
+
+
+
 }
